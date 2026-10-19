@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ere/ere.vcxproj" Id="1e9af130-c8e4-4d56-a6fd-6a342832519f" />
+</Solution>
