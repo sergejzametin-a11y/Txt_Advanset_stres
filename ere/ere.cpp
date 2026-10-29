@@ -4,6 +4,10 @@
 
 using namespace std;
 
+enum Menu { Move, Shop, Fight, In_place, Inventar };
+Menu State = Move;
+Menu mem_state;
+
 struct Stuff
 {
     string name;
@@ -54,6 +58,9 @@ struct invent {
 
 int Kilometr;
 int memr_kilo;
+
+
+int use;
 
 int cloc;
 
@@ -123,7 +130,7 @@ void init_world() {
     step[1].loc2 = locate[0].id;
     step[1].lock = 0;
 
-    step[2].name = "Тропа";
+    step[2].name = "Кусты";
     step[2].loc1 = locate[0].id;
     step[2].loc2 = locate[1].id;
     step[2].lock = 1;
@@ -138,7 +145,8 @@ void init_world() {
     step[4].loc2 = locate[3].id;
     step[4].lock = 0;
 
-
+    loot.push_back({ "","","",0,-1 });
+    loot.push_back({ "","","",0,0 });
     loot.push_back({"Стекло","Остый кусок стекла, для боя не подойдёт, сам изрежишь руку","Однаразовый",10,1});
     loot.push_back({ "Мох","Мягкий, зелёный, очень приятный на ощуп","Нет",-2,2 });
     loot.push_back({ "Цветок","Нежный и маленький елый бутон пахнет мёдом","Однаразовый",-5,3 });
@@ -147,44 +155,43 @@ void init_world() {
 
     cloc = 10;
     invetar.loot.push_back({ 0 });
-    
-
+    invetar.loot.push_back({ 1 });
+    invetar.loot.push_back({ 2 });
+    use = 0;
+    mem_state = Move;
 }
 
 
 
 void was() {
-    cout << "Кстати ты здесь " << locate[me[0].locate_current].name << "\n";
+    cout << "\n Кстати ты здесь " << locate[me[0].locate_current].name << "\n\n";
     while (true)
     {
         
         step[3].loc1 = locate[me[0].locate_current].id;
         step[3].loc2 = locate[Kilometr].id;
-        cout << "Куда же ты пойдёшь? \n Перед тобой \n";
+        cout << "Куда же ты пойдёшь? \n Перед тобой \n\n";
         for (size_t i = 0; i < 10; i++)
         {
             if (step[i].loc1 == locate[me[0].locate_current].id) {
-                if (step[i].lock == 0)
-                {
-                    cout << " " << step[i].name << "\n";
-                }
-                else for (size_t iv = 0; iv < invetar.loot.size(); iv++)
-                {
-                    if (invetar.loot[iv] == step[i].lock) {
-                        invetar.loot.erase(iv);
-                        cout << " " << step[i].name << "\n";
 
-                    }
-                }
+                
+                    cout << " " << step[i].name << "\n";
+              
 
             };
 
         }
-        cout << "Или хочешь остаться?\n";
-
-        cin >> does;
+        cout << "Или хочешь остаться?\n\nСуммка\n\n";
 
         
+        cin >> does;
+        cout << "\n\n";
+        if (does == "Суммка")
+        {
+            mem_state = State;
+            State = Inventar;
+        }
         if (Kilometr == locate[me[0].locate_current].id) {
             Kilometr = memr_kilo;
             step[3].loc2 = locate[Kilometr].id;
@@ -196,30 +203,72 @@ void was() {
             
         }
 
-        if (does != "Остаться") {
-            for (size_t j = 0; j < 10; j++)
+        if (does != "Остаться") 
+        {
+            for (size_t j = 0; j < 10; j++) 
             {
-                if (does == step[j].name) { 
-                    me[0].locate_current = step[j].loc2;
-                }
-            }
             
 
+                if (does == step[j].name) { 
+
+                    if (step[j].lock == 0)
+                    {
+                        me[0].locate_current = step[j].loc2;
+                    }
+                    else {
+                        for (size_t iv = 0; iv < invetar.loot.size(); iv++)
+                        {
+                            if (invetar.loot[iv] == step[j].lock) {
+                                cout<< "\tТы используешь " << loot[iv-1].name << "\n\n";
+                                invetar.loot.erase(remove(invetar.loot.begin(), invetar.loot.end(), iv), invetar.loot.end());
+                                cout << "Что бы пройти " << step[j].name << "\n";
+                                use = 1;
+                                me[0].locate_current = step[j].loc2;
+
+                            }
+                            
+                        }
+                        if (use == 0)
+                        {
+                            
+                            cout << "Нет нужного предмета\n\n";
+                        }
+                        else 
+                        {
+                            use = 0;
+                        }
+
+                    }
+
+                    
+                }
+            }
         }
         else { 
-             break;
+
+            
+            State = In_place;
         }
         cout << "\nЛокация " << locate[me[0].locate_current].name << "\n\n" << "Описание: " << locate[me[0].locate_current].origin << "\n\n" << "Что есть: " << locate[me[0].locate_current].desc_loot << "\n\n" << "Кто есть: " << locate[me[0].locate_current].check_peiper << "\n\n";
+        return;
 
         
     }
+
+    
 };
 void plase() {
 
     while (true)
     {
-        cout << "Ваши действия?\n Осматрерться \n Уйти \n Подаждать\n";
+        cout << "Ваши действия?\n\n  Осматрерться \n  Уйти \n  Подаждать\n\nСуммка\n\n";
         cin >> does;
+        cout << "\n\n";
+        if (does == "Суммка")
+        {
+            mem_state = State;
+            State = Inventar;
+        }
         if (does != "Уйти") {
             if (does == "Подаждать") {
                 cloc += 1;
@@ -227,26 +276,29 @@ void plase() {
             else {
                 while (true)
                 {
-                    cout << "Ты видишь:\n";
+                    cout << "Ты видишь:\n-------------------------------------------\n";
                     for (size_t z = 0; z < locate[me[0].locate_current].list_loot.size(); z++)
                     {
                         cout << loot[z].name << "\n";
 
                     }
-                    cout << "Ничего\n";
-                    cout << "Что взять?\n";
+                    cout << "Ничего\n-------------------------------------------\n";
+                    cout << "Что взять?\n\n";
                     cin >> does;
+                    cout << "\n\n";
                     if (does!="Ничего")
                     {
                         for (size_t z = 0; z < locate[me[0].locate_current].list_loot.size(); z++)
                         {
                             if (does == loot[z].name) {
                                 invetar.loot.push_back({ loot[z].id });
+                                cout << "\tТы взял " << loot[z].name << "\n\n";
                             }
 
                         }
                     }
                     else {
+                        State = Move;
                         break;
                     }
                     
@@ -269,7 +321,8 @@ void plase() {
 
         }
         else {
-            break;
+            State = Move;
+            return;
         }
 
 
@@ -284,7 +337,27 @@ void plase() {
 
 
 };
+void bag() 
+{
+    while (true)
+    {
+        cout << "\nУ тебя в карманах\n\n---------------------------------------\n";
+        for (size_t y = 0; y < invetar.loot.size(); y++)
+        {
+            cout << loot[y].name << "\n";
 
+
+        }
+
+        cout << "---------------------------------------\n\n";
+        State = mem_state;
+        return;
+    }
+    
+
+
+
+}
 
 
 
@@ -296,23 +369,32 @@ int main() {
 
     init_world();
     
-    enum Menu{ Move, Shop ,Fight , In_place};
-    Menu State = Move;
+    
 
-    switch (State)
+    while (true)
     {
-    case Move:{
-        was();
-        
-    }
-    case In_place:{
-        plase();
-        break;
-    }
+        switch (State)
+        {
+        case Move:
+        {
+            was();
+            break;
+        }
+        case In_place:
+        {
+            plase();
+            break;
+        }
+        case Inventar:
+        {
+            bag();
+            break;
+        }
 
-    default:
-        break;
-    }
+        default:
+            break;
+        }
+    } 
   
 
 
